@@ -78,7 +78,8 @@ module.exports = {
       var rates = {};
       rates.fromCurrency = getCurrency(settings.fromCurrency);
       rates.toCurrency = getCurrency(settings.toCurrency);
-      rates.exchangeRate = (1 / rates.fromCurrency.rate) * rates.toCurrency.rate;
+      if (rates.fromCurrency && rates.toCurrency) 
+        rates.exchangeRate = (1 / rates.fromCurrency.rate) * rates.toCurrency.rate;
       return rates;
     },
 
@@ -101,10 +102,11 @@ module.exports = {
           var exchangedValue = {};
 
           var rates = this.fetchRates(settings);
-          exchangedValue.currency = rates.toCurrency.currency;
-          exchangedValue.exchangeRate = this.roundValues(rates.exchangeRate, settings.accuracy | 4);
-          exchangedValue.amount = this.roundValues(settings.amount * rates.exchangeRate, settings.accuracy | 4);
-
+          if (rates.exchangeRate) {
+            exchangedValue.currency = rates.toCurrency.currency;
+            exchangedValue.exchangeRate = this.roundValues(rates.exchangeRate, settings.accuracy | 4);
+            exchangedValue.amount = this.roundValues(settings.amount * rates.exchangeRate, settings.accuracy | 4);
+          }
           callback(exchangedValue);
         };
     },
@@ -113,12 +115,12 @@ module.exports = {
       this.getExchangeRates();
       this.executeCallback = function() {
           var exchangedValue = {};
-
           var rates = this.fetchRates(settings);
-          exchangedValue.toCurrency = rates.toCurrency.currency;
-          exchangedValue.fromCurrency = rates.fromCurrency.currency;
-          exchangedValue.exchangeRate = this.roundValues(rates.exchangeRate, settings.accuracy | 4);
-
+          if (rates.exchangeRate) {
+            exchangedValue.toCurrency = rates.toCurrency.currency;
+            exchangedValue.fromCurrency = rates.fromCurrency.currency;
+            exchangedValue.exchangeRate = this.roundValues(rates.exchangeRate, settings.accuracy | 4);
+          }
           callback(exchangedValue);
         };
     },
